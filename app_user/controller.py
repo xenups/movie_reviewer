@@ -1,4 +1,6 @@
 "ICECREAM"
+import bottle
+from bottle_jwt import jwt_auth_required
 from marshmallow import ValidationError
 from app_user.models import User, Person
 from bottle import HTTPResponse, HTTPError
@@ -6,7 +8,10 @@ from ICECREAM.models.query import get_or_create
 from app_user.schemas import user_serializer, users_serializer
 
 
+@jwt_auth_required
 def get_users(db_session):
+    user = bottle.request.get_user()
+    print(user)
     try:
         users = db_session.query(User).all()
         users = users_serializer.dump(users)
