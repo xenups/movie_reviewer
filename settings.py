@@ -10,9 +10,6 @@ media_path = project_root + os.getenv('media_files')
 # you can using instead of os.getenv  media_files = /statics/media/
 DEBUG: bool = True
 apps = [
-    'app_book.urls.BookApp',
-    'app_foo.urls.FOOApp',
-    'app_tutorial.urls.ClassApp',
     'app_signup.urls.SignUpApp',
     'app_user.urls.USERApp'
 ]
