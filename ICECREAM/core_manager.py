@@ -5,9 +5,9 @@ import logging
 import rootpath
 import sentry_sdk
 from pydoc import locate
+from app_user.authentication import jwt_plugin
 from .util import strip_path
 from ICECREAM.baseapp import BaseApp
-# from .authentication import jwt_plugin
 from bottle import Bottle, run, static_file, BaseTemplate
 from settings import default_address, apps, sentry_dsn, DEBUG, media_path
 from sentry_sdk.integrations.bottle import BottleIntegration
@@ -107,12 +107,10 @@ class Core(object):
             raise ValueError(e)
 
     def __init_jwt(self):
-        pass
-        # if jwt_plugin.auth_endpoint:
-        #     print('hi')
-        #     self.core.install(jwt_plugin)
-        # return True
-        # return False
+        if jwt_plugin.auth_endpoint:
+            self.core.install(jwt_plugin)
+            return True
+        return False
 
     def __route_homepage(self, ):
         if DEBUG:
