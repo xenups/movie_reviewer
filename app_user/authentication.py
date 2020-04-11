@@ -1,8 +1,7 @@
-from bottle_jwt import JWTProviderPlugin
-
+from app_user.models import User
 from ICECREAM.models.query import get
 from ICECREAM.wrappers import db_handler
-from app_user.models import User
+from bottle_jwt import JWTProviderPlugin
 from app_user.schemas import user_serializer
 from settings import project_secret, jwt_ttl
 
