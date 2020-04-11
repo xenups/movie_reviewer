@@ -24,6 +24,15 @@ class DBConnector(BaseDBConnector, metaclass=Singleton):
     pass
 
 
+class ResourceMixin(object):
+
+    def __eq__(self, other):
+        return hasattr(other, "id") and self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
+
+
 def get_database_uri():
     uri = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(database['db_user'], database['db_pass'],
                                                         database['db_host'], database['db_port'],
