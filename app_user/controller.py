@@ -1,13 +1,11 @@
 "ICECREAM"
 import bottle
+from ICECREAM.rbac import ACLHandler
 from marshmallow import ValidationError
-from app_user.models import User, Person, Message
 from bottle import HTTPResponse, HTTPError
 from ICECREAM.models.query import get_or_create
+from app_user.models import User, Person, Message
 from app_user.schemas import user_serializer, users_serializer
-from rbac.acl import Registry
-from rbac.proxy import RegistryProxy
-from rbac.context import IdentityContext, PermissionDenied
 
 
 def get_users(db_session):
@@ -20,6 +18,10 @@ def get_users(db_session):
 
     except Exception:
         raise HTTPError(status=404, body="nemishe")
+
+
+def hello():
+    return {"id": "1", "name": "Thing1"}
 
 
 def new_user(db_session, data):
@@ -56,16 +58,11 @@ def new_user(db_session, data):
 
 def new_message(db_session, data):
     user = bottle.request.get_user()
-    acl = RegistryProxy(Registry())
     current_user = db_session.query(User).get(user['id'])
-    identity = IdentityContext(acl, lambda: current_user.get_roles())
-    acl.add_role("staff")
-    acl.add_role("admin")
-    acl.add_resource(Message)
-
-    acl.allow("staff", "create", Message)
-
-    message = Message(content="slm manam", owner=current_user)
-
-    with identity.check_permission("create", Message):
-        print("ejaze dara")
+    aclh = ACLHandler(Resource=Message)
+    identity = aclh.get_identity(current_user)
+    if identity.check_permission("create", Message):
+        print("man staff am va mitunam add konam")
+    if identity.check_permission("edit", Message):
+        print("man admin am va mitunam edit konam")
+    del aclh
