@@ -22,8 +22,9 @@ class AuthBackend(object):
         return None
 
     def get_user(self, user_id):
-        if user_id == self.user['id']:
-            return {k: self.user[k] for k in self.user if k != 'password'}
+        if hasattr(self, 'user'):
+            if user_id == self.user['id']:
+                return {k: self.user[k] for k in self.user if k != 'password'}
         return None
 
 
