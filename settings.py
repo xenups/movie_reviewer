@@ -13,6 +13,7 @@ apps = [
     'app_signup.urls.SignUpApp',
     'app_user.urls.USERApp'
 ]
+
 default_address = {
     'host': os.getenv('host'),
     'port': os.getenv('port'),
