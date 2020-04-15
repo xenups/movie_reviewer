@@ -22,13 +22,12 @@ def get_or_create(model, session, **kwargs):
         return None
 
 
-def get(model, session, **kwargs):
+def get(model, session, *args, **kwargs):
     try:
-        model_object = session.query(model).filter_by(**kwargs).first()
+        model_object = session.query(model).filter(*args, **kwargs).first()
         return model_object
     except Exception as e:
-        model_object = model()
-        return model_object
+        raise e
 
 
 def get_object_or_404(model, session, *args, **kwargs):

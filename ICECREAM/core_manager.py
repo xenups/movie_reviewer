@@ -2,6 +2,7 @@ import os
 import sys
 import pathlib
 import logging
+from shutil import copy
 import rootpath
 import sentry_sdk
 from pydoc import locate
@@ -21,7 +22,7 @@ def get_default_address():
 
 rootpath.append()
 ICECREAM_PATH = str(pathlib.Path(__file__).resolve().parent)
-commands_list = ['startapp', 'runserver', 'wsgi']
+commands_list = ['startapp', 'runserver', 'wsgi', 'makealembic']
 list_files = ['models.py', 'controller.py', 'schemas.py', 'urls.py']
 
 
@@ -65,7 +66,8 @@ class CommandManager(object):
         if self.command.has_value():
             core = Core()
             return core.execute_wsgi()
-
+        if self.command.get_command() == 'makealembic':
+            self.init_alembic_env()
         if self.command.get_command() == 'startapp':
             if self.command.has_subcommand():
                 self.create_app(self.command.get_subcommand()[0])
@@ -77,6 +79,7 @@ class CommandManager(object):
                 return core.execute_runserver(self.command.get_subcommand()[0])
             else:
                 return core.execute_runserver(None)
+
 
     @staticmethod
     def create_app(app_name):
@@ -90,6 +93,15 @@ class CommandManager(object):
                     temp_file.write('"ICECREAM"'.encode())
         except IOError as err:
             raise err.filename
+
+    @staticmethod
+    def init_alembic_env():
+        dst = rootpath.detect() + "/alembic/"
+        if os.path.exists(dst):
+            src = ICECREAM_PATH + "/migration_tool/env.py"
+            copy(src, dst)
+        else:
+            logging.info("please alembic init alembic , before makealembic")
 
 
 class Core(object):

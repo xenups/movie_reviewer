@@ -22,10 +22,11 @@ class RedisCache(object):
         self.__redis_connector = RedisConnector()
 
     def get_cache_multiple_value(self, key, custom_value_name):
-        __json_value_data = self.__redis_connector.cache.get(key)
-        if __json_value_data is not None:
-            __value = (json.loads(__json_value_data)).get(custom_value_name, None)
-            return __value
+        if key:
+            __json_value_data = self.__redis_connector.cache.get(key)
+            if __json_value_data is not None:
+                __value = (json.loads(__json_value_data)).get(custom_value_name, None)
+                return __value
         return None
 
     def set_cache_multiple_value(self, key, value, custom_value_name, ttl=60):

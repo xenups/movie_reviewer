@@ -1,11 +1,12 @@
 "ICECREAM"
 import bottle
+from ICECREAM.cache import RedisCache
+from ICECREAM.http import HTTPError
 from ICECREAM.rbac import ACLHandler
 from marshmallow import ValidationError
-from bottle import HTTPResponse, HTTPError
 from ICECREAM.models.query import get_or_create
 from app_user.models import User, Person, Message
-from app_user.schemas import user_serializer, users_serializer
+from app_user.schemas import users_serializer, user_serializer
 
 
 def get_users(db_session):
@@ -16,7 +17,7 @@ def get_users(db_session):
         users = users_serializer.dump(users)
         return users
 
-    except Exception:
+    except Exception as e:
         raise HTTPError(status=404, body="nemishe")
 
 
@@ -26,34 +27,34 @@ def hello():
 
 def new_user(db_session, data):
     try:
-        try:
-            user_serializer.load(data)
+        user_serializer.load(data)
+    except Exception as e:
+        raise HTTPError(404, e.args)
 
-            person = data['person']
-            person_name = person['name']
-            person_last_name = person['last_name']
-            person_phone = person['phone']
-            person_bio = person['bio']
-            username = data['username']
-            person = get_or_create(Person, db_session, name=person_name)
-            person.name = person_name
-            person.last_name = person_last_name
-            person.phone = person_phone
-            person.bio = person_bio
-            db_session.add(person)
-            user = get_or_create(User, db_session, username=username)
-            user.username = username
-            user.set_roles(data['roles'])
-            user.set_password(data['password'])
-            user.person = person
-            db_session.add(user)
-            db_session.commit()
-            result = user_serializer.dump(db_session.query(User).get(user.id))
-            return result
-        except ValidationError as err:
-            return err.messages
-    except HTTPError as err:
-        raise HTTPError(status=404, body="something")
+    cache = RedisCache()
+    sign_up = cache.get_cache_multiple_value(data['phone'], 'signup_token')
+    print(sign_up)
+    if sign_up and sign_up == data["signup_token"]:
+        person = data['person']
+        person_name = person['name']
+        person_last_name = person['last_name']
+        person_bio = person['bio']
+        phone = data['phone']
+        person = get_or_create(Person, db_session, name=person_name)
+        person.name = person_name
+        person.last_name = person_last_name
+        person.bio = person_bio
+        db_session.add(person)
+        user = get_or_create(User, db_session, phone=phone)
+        user.phone = phone
+        user.set_roles(data['roles'])
+        user.set_password(data['password'])
+        user.person = person
+        db_session.add(user)
+        db_session.commit()
+        result = user_serializer.dump(db_session.query(User).get(user.id))
+        return result
+    raise HTTPError(404, "Signup Token Expired")
 
 
 def new_message(db_session, data):
