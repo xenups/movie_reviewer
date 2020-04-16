@@ -1,8 +1,6 @@
 from sqlalchemy.orm.exc import NoResultFound
-
 #########need to be refactor################
 from ICECREAM.http import HTTPError
-from app_user.models import Person, User
 
 
 def get_or_create(model, session, **kwargs):
