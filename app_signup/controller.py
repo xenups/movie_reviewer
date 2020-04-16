@@ -6,7 +6,7 @@ from marshmallow import ValidationError
 from app_signup.schemas import SMSSchema
 from app_user.models import User, Person
 from ICECREAM.util import generate_otp_code
-from ICECREAM.models.query import is_object_exist
+from ICECREAM.models.query import is_object_exist_409
 from send_message.send_message import send_message
 
 valid_activating_interval = 86400
@@ -20,7 +20,7 @@ def phone_activation(data, db_session):
         return err.messages
     cache = RedisCache()
     phone = data.get('phone')
-    is_object_exist(User, db_session, User.phone == phone)
+    is_object_exist_409(User, db_session, User.phone == phone)
     if cache.get_cache_multiple_value(phone, 'activation_code'):
         raise HTTPError(403, ' Phone already has valid activation code')
     activation_code = generate_otp_code()
@@ -36,7 +36,7 @@ def phone_activation(data, db_session):
 def phone_validation(data, db_session):
     cache = RedisCache()
     cell_number = data.get('phone')
-    is_object_exist(User, db_session, User.phone == cell_number)
+    is_object_exist_409(User, db_session, User.phone == cell_number)
 
     activation_code = cache.get_cache_multiple_value(cell_number, 'activation_code')
 
