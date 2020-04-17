@@ -1,5 +1,5 @@
 from app_user.models import User
-from ICECREAM.models.query import get
+from ICECREAM.models.query import get_object
 from ICECREAM.wrappers import db_handler
 from bottle_jwt import JWTProviderPlugin
 from app_user.schemas import user_serializer
@@ -9,7 +9,7 @@ from settings import project_secret, jwt_ttl
 class AuthBackend(object):
     @db_handler
     def get_user_obj(self, db_session, phone):
-        user = get(User, db_session, User.phone == phone)
+        user = get_object(User, db_session, User.phone == phone)
         return user
 
     def authenticate_user(self, username, password):
