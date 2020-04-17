@@ -2,7 +2,7 @@
 from bottle_jwt import jwt_auth_required
 
 from ICECREAM.baseapp import BaseApp
-from app_user.controller import get_users, new_user, new_message
+from app_user.controller import get_users, new_user, new_message, set_role
 from ICECREAM.wrappers import db_handler, pass_data, jsonify
 
 
@@ -11,3 +11,4 @@ class USERApp(BaseApp):
         core.route('/getusers', 'GET', get_users, apply=[db_handler, jsonify, jwt_auth_required])
         core.route('/adduser', 'POST', new_user, apply=[pass_data, db_handler, jsonify])
         core.route('/createmessage', 'POST', new_message, apply=[pass_data, db_handler, jsonify, jwt_auth_required])
+        core.route('/set_role', 'POST', set_role, apply=[pass_data, db_handler, jsonify, jwt_auth_required])
