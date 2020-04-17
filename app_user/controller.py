@@ -3,8 +3,8 @@ import bottle
 from ICECREAM.cache import RedisCache
 from ICECREAM.http import HTTPError
 from ICECREAM.paginator import Paginate
-from ICECREAM.rbac import ACLHandler
-from ICECREAM.models.query import get_or_create
+from ICECREAM.rbac import get_user_identity
+from ICECREAM.models.query import get_or_create, get_object
 from app_user.models import User, Person, Message
 from app_user.schemas import users_serializer, user_serializer
 
@@ -52,18 +52,25 @@ def new_user(db_session, data):
         user.person = person
         db_session.add(user)
         db_session.commit()
-        result = user_serializer.dump(db_session.query(User).get(user.id))
+        result = user_serializer.dump(db_session.query(User).get_object(user.id))
         return result
     raise HTTPError(404, "Signup Token Not Valid")
 
 
+def set_role(db_session, data):
+    identity = get_user_identity(db_session)
+    if identity.check_permission("edit_roles", User):
+        user = get_object(User, db_session, User.phone == data["phone"])
+        user.set_roles(data["roles"])
+        db_session.commit()
+        result = user_serializer.dump(user)
+        return result
+    raise HTTPError(403, "access denied")
+
+
 def new_message(db_session, data):
-    user = bottle.request.get_user()
-    current_user = db_session.query(User).get(user['id'])
-    aclh = ACLHandler(Resource=Message)
-    identity = aclh.get_identity(current_user)
+    identity = get_user_identity(db_session)
     if identity.check_permission("create", Message):
         print("man staff am va mitunam add konam")
     if identity.check_permission("edit", Message):
         print("man admin am va mitunam edit konam")
-    del aclh
