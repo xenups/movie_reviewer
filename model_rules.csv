@@ -1,3 +1,5 @@
 staff,create,message
 admin ,edit,message
 admin,edit_roles,user
+admin,add_user,user
+admin,delete_user,user
