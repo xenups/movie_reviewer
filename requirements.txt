@@ -9,7 +9,7 @@ marshmallow==3.5.1
 mongosql==2.0.10.post1
 nose==1.3.7
 psycopg2-binary==2.8.5
-PyJWT==1.7.1
+PyJWT==2.4.0
 redis==3.4.1
 rootpath==0.1.1
 sentry-sdk==0.14.3
